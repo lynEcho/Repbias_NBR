@@ -82,7 +82,7 @@ python rerank_trex_test.py --topk 100 --size 20 --method_rep trep --method_expl 
 ### Hyperparameters for each NBR method:
 
 RADiv:
-|            | Instacart  |            | Dunnhumby  |            | TaFeng     |            |
+|            | Instacart  |  Instacart | Dunnhumby  |  Dunnhumby | TaFeng     |   TaFeng   |
 |------------|------------|------------|------------|------------|------------|------------|
 |            | epsilon_1  | lambda     |epsilon_1   | lambda     |epsilon_1   | lambda     |
 | UP-CF@r    |   0.2      |   0.01     |  0.08      |   0.01     |   0.08     |   0.001    |
@@ -91,34 +91,20 @@ RADiv:
 | DNNTSP     |    0.2     |    0.01    |   0.12     |    0.01    |   0.01     |    0.01    |
 |            | epsilon_2  | theta      |epsilon_2   | theta      |epsilon_2   | theta      |
 | TREx       |    0.5     |    0.34249 |   10       |    0.57303 |   0.001    |    0.12545 |
-new
-
-|            | Instacart               | Dunnhumby               | TaFeng                  |
-|------------|------------|------------|------------|------------|------------|------------|
-|            | epsilon_1  | lambda     | epsilon_1  | lambda     | epsilon_1  | lambda     |
-| UP-CF@r    |   0.2      |   0.01     |   0.08     |   0.01     |   0.08     |   0.001    |
-| TIFUKNN    |   0.2      |   0.01     |   0.04     |   0.001    |   0.01     |   0.001    |
-| Dream      |   0.18     |   0.3      |   0.12     |   0.01     |   0.1      |   0.1      |
-| DNNTSP     |   0.2      |   0.01     |   0.12     |   0.01     |   0.01     |   0.01     |
-|            | epsilon_2  | theta      | epsilon_2  | theta      | epsilon_2  | theta      |
-| TREx       |   0.5      |   0.34249  |   10       |   0.57303  |   0.001    |   0.12545  |
 
 
 
 
 
 RAIF:
-|            | Instacart               | Dunnhumby               | TaFeng                  |
-|            |------------|------------|------------|------------|------------|------------|
-|            | alpha_1    | lambda     |alpha_1     | lambda     |alpha_1     | lambda     |
+|            | Instacart  | Instacart  | Dunnhumby  |  Dunnhumby | TaFeng     |    TaFeng  |
 |------------|------------|------------|------------|------------|------------|------------|
+|            | alpha_1    | lambda     |alpha_1     | lambda     |alpha_1     | lambda     |
 | UP-CF@r    |   200      |   0.9      |  50        |   0.3      |   100      |   0.8      |
 | TIFUKNN    |   200      |  0.8       |  1         |  0.001     |   20       |  0.1       |
 | Dream      |   200      |   0.3      |  200       |   0.5      |   20       |    0.2     |
 | DNNTSP     |   200      |    0.9     |   200      |    0.4     |   200      |    0.6     |
-|------------|------------|------------|------------|------------|------------|------------|
 |            | alpha_2    | theta      |alpha_2     | theta      |alpha_2     | theta      |
-|------------|------------|------------|------------|------------|------------|------------|
 | TREx       |    200     |    0.4039  |  200       |    0.62322 |   200      |    0.0501  |
 
 ## evaluation 
