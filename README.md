@@ -67,9 +67,44 @@ We provide the scripts of preprocessing, and the preprocessed dataset with diffe
 
 ## Rerank
 
+For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
+
+```
+python rerank_overall_bias.py --topk 100 --size 20 --method upcf --pred_folder XXX
+
+```
+For combined NBR methods, such as TREx:
+```
+python rerank_trex_test.py --topk 100 --size 20 --method_rep trep --method_expl upcf --dataset dunnhumby --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
+
+```
+
+### Hyperparameters for each NBR method:
+
+RADiv:
+
+| Column 1   | Column 2   | \lambda   |
+|------------|------------|------------|
+| UP-CF@r    | Row 1 Col2 | Row 1 Col3 |
+| TIFUKNN    | Row 2 Col2 | Row 2 Col3 |
+| Dream      | Row 3 Col2 | Row 3 Col3 |
+| DNNTSP     | Row 3 Col2 | Row 3 Col3 |
+
+
 
 
 ## evaluation 
+
+```
+
+python evaluate_overall_bias.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list 0 0.001 0.01 0.1 1 10 20 30 40 50 60 70 80 90 100 200 --lamda_list 0 0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 --method dnntsp --dataset tafeng
+
+```
+
+
+
+
+
 
 
 
