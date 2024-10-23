@@ -65,7 +65,7 @@ We provide the scripts of preprocessing, and the preprocessed dataset with diffe
 * Step 3. Evaluate: Use the evaluation scripts to get the performance before and after re-ranking.
 
 
-## Rerank
+## Re-ranking
 
 For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
 
@@ -107,18 +107,13 @@ RAIF:
 |            | alpha_2    | theta      |alpha_2     | theta      |alpha_2     | theta      |
 | TREx       |    200     |    0.4039  |  200       |    0.62322 |   200      |    0.0501  |
 
-## evaluation 
+## Evaluation 
 
 ```
 
 python evaluate_overall_bias.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list 0 0.001 0.01 0.1 1 10 20 30 40 50 60 70 80 90 100 200 --lamda_list 0 0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 --method dnntsp --dataset tafeng
 
 ```
-
-
-
-
-
 
 
 
@@ -130,11 +125,11 @@ Our reproducibility relies as much as possible on the artifacts provided by the 
 * TIFUKNN: https://github.com/HaojiHu/TIFUKNN
 * DREAM: https://github.com/yihong-chen/DREAM
 * DNNTSP: https://github.com/yule-BUAA/DNNTSP
+* TREx: https://github.com/lynEcho/TREX
 
 We also provide our additional instructions if the original repository is not clear, as well as the hyperparameters we use.
 
 We set five random seed: 12345, 12321, 54321, 66688, 56789. And the corresponding number of the predicted files are 0, 1, 2, 3, 4.
-For G-TopFreq, P-TopFreq, GP-TopFreq, TIFUKNN, the predicted results of each run are same and not influenced by the random seed. Therefore, we only keep one set of predicted files with number 0.
 
 Please create a folder "results" under each method to store the predicted files.
 
@@ -228,10 +223,11 @@ Predicted file name: {dataset}_pred{number}.json, {dataset}_rel{number}.json
 ### TREx
 
 
-Step1: get repeat results, which is saved as 'repeat_result/{dataset}_pred.json'
+Get repeat results of TREx, which is saved as 'results/{dataset}_pred0.json', 'results/{dataset}_rel0.json'
 ```
-python repetition/repeat.py --dataset instacart --alpha 0.3 --beta 0.8
-python repetition/repeat.py --dataset dunnhumby --alpha 0.7 --beta 0.9
+python repeat.py --dataset instacart --alpha 0.3 --beta 0.8
+python repeat.py --dataset dunnhumby --alpha 0.7 --beta 0.9
+python repeat.py --dataset tafeng --alpha 0.2 --beta 0.9
 
 ```
 
