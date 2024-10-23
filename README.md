@@ -125,5 +125,113 @@ python evaluate_overall_bias.py --pred_folder XXX --fold_list 0 --eval XXX --ite
 ## Guidelines for NBR methods
 
 
+Our reproducibility relies as much as possible on the artifacts provided by the user themselves, the following repositories have information about how to run each NBR method and the required packages.
+* UP-CF@r: https://github.com/MayloIFERR/RACF
+* TIFUKNN: https://github.com/HaojiHu/TIFUKNN
+* DREAM: https://github.com/yihong-chen/DREAM
+* DNNTSP: https://github.com/yule-BUAA/DNNTSP
 
+We also provide our additional instructions if the original repository is not clear, as well as the hyperparameters we use.
+
+We set five random seed: 12345, 12321, 54321, 66688, 56789. And the corresponding number of the predicted files are 0, 1, 2, 3, 4.
+For G-TopFreq, P-TopFreq, GP-TopFreq, TIFUKNN, the predicted results of each run are same and not influenced by the random seed. Therefore, we only keep one set of predicted files with number 0.
+
+Please create a folder "results" under each method to store the predicted files.
+
+
+### UP-CF@r
+UP-CF@r is under the folder "methods/upcf".
+* Step 1: Check the dataset path and keyset path.
+* Step 2: Predict and save the results using the following commands:
+```
+python racf.py --dataset instacart --recency 5 --asymmetry 0.25 --locality 5 --seed 12345 --number 0
+...
+python racf.py --dataset dunnhumby --recency 25 --asymmetry 0.25 --locality 5 --seed 12345 --number 0
+...
+
+``` 
+Predicted file name: {dataset}_pred{number}.json, {dataset}_rel{number}.json
+
+### TIFUKNN
+TIFUKNN is under the folder "methods/tifuknn"
+* Step 1: Predict and save the results using the following commands:
+```
+python tifuknn_new.py ../jsondata/instacart_history.json ../jsondata/instacart_future.json ../keyset/instacart_keyset.json 900 0.9 0.6 0.7 3 20 
+...
+python tifuknn_new.py ../jsondata/dunnhumby_history.json ../jsondata/dunnhumby_future.json ../keyset/dunnhumby_keyset.json 100 0.9 0.9 0.1 7 20 
+...
+
+```
+Predicted file name: {dataset}_pred0.json, {dataset}_rel0.json
+
+### Dream
+Dream is under the folder "methods/dream".
+* Step 1: Check the file path of the dataset in the config-param file "{dataset}conf.json"
+* Step 2: Train and save the model using the following commands:
+```
+python trainer.py --dataset instacart --attention 1 --seed 12345 
+...
+python trainer.py --dataset dunnhumby --attention 1 --seed 12345 
+...
+
+```
+* Step 3: Predict and save the results using the following commands:
+```
+python pred_results.py --dataset instacart --attention 1 --seed 12345 --number 0
+...
+python pred_results.py --dataset dunnhumby --attention 1 --seed 12345 --number 0
+...
+
+```
+Predicted file name: {dataset}_pred{number}.json, {dataset}_rel{number}.json
+
+
+### DNNTSP
+DNNTSP is under the folder "methods/dnntsp".
+* Step 1: Confirm the name of config-param file "{dataset}config.json" in ../utils/load_config.py. Check the file path of the dataset in the corresponding file "../utils/{dataset}conf.json". For example:
+```
+abs_path = os.path.join(os.path.dirname(__file__), "instacartconfig.json")
+with open(abs_path) as file:
+    config = json.load(file)
+```
+```
+{
+    "data": "Instacart",
+    "save_model_folder": "DNNTSP",
+    "history_path": "../jsondata/instacart_history.json",
+    "future_path": "../jsondata/instacart_future.json",
+    "keyset_path": "../keyset/instacart_keyset_0.json",
+    "items_total": 29399,
+    "item_embed_dim": 16,
+    "cuda": 0,
+    "loss_function": "multi_label_soft_loss",
+    "epochs": 40,
+    "batch_size": 64,
+    "learning_rate": 0.001,
+    "optim": "Adam",
+    "weight_decay": 0
+}
+```
+* Step 2: Train and save the models using the following command:
+```
+python train_main.py --seed 12345
+```
+* Step 3: Predict and save results using the following commands:
+```
+python pred_results.py --dataset instacart --number 0 --best_model_path XXX
+```
+Note, DNNTSP will save several models during the training, an epoch model will be saved if it has higher performance than previous epoch, so XXX is the path of the last model saved during the training.
+
+Predicted file name: {dataset}_pred{number}.json, {dataset}_rel{number}.json
+
+
+### TREx
+
+
+Step1: get repeat results, which is saved as 'repeat_result/{dataset}_pred.json'
+```
+python repetition/repeat.py --dataset instacart --alpha 0.3 --beta 0.8
+python repetition/repeat.py --dataset dunnhumby --alpha 0.7 --beta 0.9
+
+```
 
