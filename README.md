@@ -82,7 +82,7 @@ python rerank_trex_test.py --topk 100 --size 20 --method_rep trep --method_expl 
 ### Hyperparameters for each NBR method:
 
 RADiv:
-|            | Instacart               | Dunnhumby               | TaFeng                  |
+|            | Instacart  |            | Dunnhumby  |            | TaFeng     |            |
 |------------|------------|------------|------------|------------|------------|------------|
 |            | epsilon_1  | lambda     |epsilon_1   | lambda     |epsilon_1   | lambda     |
 | UP-CF@r    |   0.2      |   0.01     |  0.08      |   0.01     |   0.08     |   0.001    |
