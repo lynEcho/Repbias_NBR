@@ -70,19 +70,19 @@ We provide the preprocessed dataset with different formats (csvdata, jsondata, m
 For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
 
 ```
-python rerank_unified.py --topk 100 --size 20 --method upcf --pred_folder XXX
+python rerank_unified.py --topk 100 --size 20 --method XXX --pred_folder XXX
 
 ```
 For combined NBR methods, such as TREx:
 ```
-python rerank_combined.py --topk 100 --size 20 --method_rep trex --method_expl upcf --dataset instacart --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
+python rerank_combined.py --topk 100 --size 20 --method_rep trex --method_expl upcf --dataset XXX --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
 
 ```
 
 
 ### Hyperparameters for each NBR method on each dataset:
 
-We list the hyperparameters selected from validation set:
+We list the hyperparameters selected from validation set, and you could directly use these values to reproduce the main experiment.
 
 RADiv:
 |            | Instacart  |  Instacart | Dunnhumby  |  Dunnhumby | TaFeng     |   TaFeng   |
@@ -108,11 +108,12 @@ RAIF:
 |            | alpha_2    | theta      |alpha_2     | theta      |alpha_2     | theta      |
 | TREx       |    200     |    0.4039  |  200       |    0.62322 |   200      |    0.0501  |
 
+
 ## Evaluation 
 
 ```
 
-python evaluate_performance.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list 0 0.001 0.01 0.1 1 10 20 30 40 50 60 70 80 90 100 200 --lamda_list 0 0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 --method dnntsp --dataset instacart
+python evaluate_performance.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list XXX --lamda_list XXX --method dnntsp --dataset XXX
 
 ```
 

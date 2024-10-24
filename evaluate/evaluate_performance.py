@@ -28,8 +28,7 @@ def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
     a_hit_explore = []
 
     for ind in fold_list:
-        keyset_file = f'keyset/{dataset}_keyset_0.json'
-        #pred_file = f'{pred_folder}/{dataset}_pred{ind}.json'
+        keyset_file = f'keyset/{dataset}_keyset.json'
         #rerank file
         pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
         with open(keyset_file, 'r') as f:
@@ -63,12 +62,12 @@ def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
             u_hit = get_HT(truth, pred, size)
             hit.append(u_hit)
 
-            u_repeat_ratio, u_explore_ratio = get_repeat_explore(repeat_items, pred, size)# here repeat items
+            u_repeat_ratio, u_explore_ratio = get_repeat_explore(repeat_items, pred, size)
             repeat_ratio.append(u_repeat_ratio)
             explore_ratio.append(u_explore_ratio)
 
             if len(truth_repeat)>0:
-                u_recall_repeat = get_Recall(truth_repeat, pred, size)# here repeat truth, since repeat items might not in the groundtruth
+                u_recall_repeat = get_Recall(truth_repeat, pred, size)
                 recall_repeat.append(u_recall_repeat)
                 u_hit_repeat = get_HT(truth_repeat, pred, size)
                 hit_repeat.append(u_hit_repeat)
@@ -91,7 +90,6 @@ def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
 
   
 
-    #file.write('basket size: ' + str(size) + '\n')
     file.write('item_eps: ' + str(item_eps) +' '+ 'lamda: ' + str(lamda) +'\n')
     file.write('recall: '+ str([round(num, 4) for num in a_recall]) +' '+ str(round(np.mean(a_recall), 4)) +' '+ str(round(np.std(a_recall) / np.sqrt(len(a_recall)), 4)) +'\n')
     file.write('ndcg: '+ str([round(num, 4) for num in a_ndcg]) +' '+ str(round(np.mean(a_ndcg), 4)) +' '+ str(round(np.std(a_ndcg) / np.sqrt(len(a_ndcg)), 4)) +'\n')
@@ -128,16 +126,13 @@ def eval_fairness(pred_folder, dataset, fold_list, size, file, item_eps, lamda, 
     RUR = []       
 
     for ind in fold_list:
-        keyset_file = f'keyset/{dataset}_keyset_0.json'
+        keyset_file = f'keyset/{dataset}_keyset.json'
         pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
-        #rel_file = f'{pred_folder}/{dataset}_rel{ind}.json'
 
         with open(keyset_file, 'r') as f:
             keyset = json.load(f)
         with open(pred_file, 'r') as f:
             data_pred = json.load(f)
-        #with open(rel_file, 'r') as f:
-        #    data_rel = json.load(f)
 
 
         truth_file = f'jsondata/{dataset}_future.json' # all users
@@ -233,7 +228,7 @@ def eval_diversity(pred_folder, dataset, fold_list, size, file, item_eps, lamda)
 
     for ind in fold_list:
 
-        keyset_file = f'keyset/{dataset}_keyset_0.json'
+        keyset_file = f'keyset/{dataset}_keyset.json'
         pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
         
 
@@ -241,9 +236,6 @@ def eval_diversity(pred_folder, dataset, fold_list, size, file, item_eps, lamda)
             keyset = json.load(f)
         with open(pred_file, 'r') as f:
             data_pred = json.load(f)
-
-        
-        #test_dict = {user: data_pred[user][:size] for user in keyset['test']}
 
         test_dict = {user: data_pred[user][:size] + [0] * (size - len(data_pred[user][:size])) for user in keyset['test']}
 

@@ -17,18 +17,18 @@ def get_repeat_pred(dataset, mode, alpha, beta):
     with open(keyset_file, 'r') as f:
         keyset = json.load(f)
 
-    item_num = keyset['item_num'] #all items(train+val+test)+1
+    item_num = keyset['item_num'] 
     train_user = keyset['train']
 
     #generate repetition score
-    total = np.zeros(item_num) #users who bought item i at least once
+    total = np.zeros(item_num) 
     rep = np.zeros(item_num) 
     rep_cnt = np.zeros(item_num) 
-    for item_ind in range(1, item_num): #for each item (item_id starts from 1).
+    for item_ind in range(1, item_num): 
 
-        for user in train_user: #for each user
+        for user in train_user: 
             cnt = 0.0 #frequency for each user
-            for bask in history_data[user][1:-1]: #all history baskets  
+            for bask in history_data[user][1:-1]: 
                 if item_ind in bask:
                     cnt += 1
             if cnt != 0:

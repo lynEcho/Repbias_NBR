@@ -22,7 +22,7 @@ def load_category_index(total_users, topk, item_cate):
     return Dhelp, category
 
 
-#{user: [history]}
+
 def load_repeat_index(total_users, topk, user_his, users):
     Rhelp = np.zeros((total_users, topk))
 
@@ -55,7 +55,7 @@ def load_ranking_matrices(relevance, topk):
     
     for i, (user_id, relevance_scores) in enumerate(relevance.items()):
 
-        users.append(user_id) #str
+        users.append(user_id) 
 
         #all item id ranked from relevant to irrelevant
         pred_list_0 = sorted(range(len(relevance_scores)), key=lambda x: relevance_scores[x])[::-1]
@@ -90,7 +90,7 @@ def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, lam
         model.setObjective(quicksum(S[i][j] * W[i, j] for i in V1 for j in V2) - iepsilon * (item_group[0] - item_group[1]) - lamda * quicksum(repeat[i] for i in V1), GRB.MAXIMIZE)
 
     
-    # first constraint
+   
 
     for i in V1:
         model.addConstr(quicksum(W[i, j] for j in V2) == size)
@@ -178,7 +178,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
 
  
-def write_results(users, size, item_eps, lamda, fair_mode, topk, solution):
+def write_results(users, size, item_eps, lamda, opt_mode, topk, solution):
     #covert W to result file
 
     rerank = dict()
@@ -196,10 +196,10 @@ def write_results(users, size, item_eps, lamda, fair_mode, topk, solution):
 
 
     #save the new results in a file
-    if fair_mode == 'DS':
+    if opt_mode == 'DS':
 
         file_path = f'result/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
-    elif fair_mode == 'DF':
+    elif opt_mode == 'DF':
 
         file_path = f'result/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
     
@@ -229,7 +229,7 @@ if __name__ == '__main__':
 
         cate_file = f'category/{dataset}_group_category.json'
         with open(cate_file, 'r') as f:
-            item_cate = json.load(f) #{cate_id: [items]}
+            item_cate = json.load(f) 
 
         history_file = f'jsondata/{dataset}_history.json'
         with open(history_file, 'r') as f:
@@ -256,10 +256,10 @@ if __name__ == '__main__':
 
         relevance_file = pred_folder+'/'+dataset+'_rel0.json'
         with open(relevance_file, 'r') as f:
-            relevance = json.load(f) #{test_user_id: [all item_relevance]}
+            relevance = json.load(f) 
         pred_file = pred_folder+'/'+dataset+'_pred0.json'
         with open(pred_file, 'r') as f:
-            pred = json.load(f) #{test_user_id: [top-100 item_id]}
+            pred = json.load(f) 
 
 
         S, P, total_users, users = load_ranking_matrices(relevance, topk)
@@ -269,19 +269,19 @@ if __name__ == '__main__':
         Ihelp = read_item_index(total_users=total_users, topk=topk, no_item_groups=2) 
 
 
-        for fair_mode in ['DF', 'DS']:
+        for opt_mode in ['DF', 'DS']:
                     
-            if fair_mode == 'DF':
+            if opt_mode == 'DF': #RAIF
                 for item_eps in [0, 0.001, 0.01, 0.1, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200]:
                     for lamda in [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
-                        solution, fairness = fairness_optimisation(fairness=fair_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, num_pop_unpop=num_pop_unpop, size=size)
-                        write_results(users, size, item_eps, lamda, fair_mode, topk, solution)
+                        solution, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, num_pop_unpop=num_pop_unpop, size=size)
+                        write_results(users, size, item_eps, lamda, opt_mode, topk, solution)
 
-            elif fair_mode == 'DS':
+            elif opt_mode == 'DS': #RADiv
                 for item_eps in [0, 0.001, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]:
                     for lamda in [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 
-                        solution, diversity = diversity_optimisation(diversity=fair_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, size=size, category=category)
-                        write_results(users, size, item_eps, lamda, fair_mode, topk, solution)
+                        solution, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, size=size, category=category)
+                        write_results(users, size, item_eps, lamda, opt_mode, topk, solution)
 
         

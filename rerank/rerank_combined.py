@@ -242,7 +242,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
 
  
-def write_results(users, size, item_eps, theta, fair_mode, topk, solution_rep, solution_expl):
+def write_results(users, size, item_eps, theta, opt_mode, topk, solution_rep, solution_expl):
     #covert W to result file
 
     rerank = dict()
@@ -262,13 +262,11 @@ def write_results(users, size, item_eps, theta, fair_mode, topk, solution_rep, s
         rerank[user_id] = [int(x) for x in rerank_user]
 
 
-
-    #save the new results in a file
-    if fair_mode == 'DS':
+    if opt_mode == 'DS':
 
         file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{item_eps}.json'
 
-    elif fair_mode == 'DF':
+    elif opt_mode == 'DF':
 
         file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{item_eps}.json'
     
@@ -321,10 +319,10 @@ if __name__ == '__main__':
     dataset = args.dataset
     theta_list = args.theta_list
 
-    #dataset info.
+    
     cate_file = f'category/{dataset}_group_category.json'
     with open(cate_file, 'r') as f:
-        item_cate = json.load(f) #{cate_id: [items]}
+        item_cate = json.load(f)
 
     category = []
     for key, value in item_cate.items():
@@ -388,7 +386,7 @@ if __name__ == '__main__':
     RIhelp = read_item_index_rep(total_users=total_users, topk=topk, no_item_groups=2) 
     RDhelp = load_category_index_rep(total_users, topk, item_cate)
 
-
+    '''
     #compute theta
     cutoffs = repeat_ratio(total_users, size)
 
@@ -405,23 +403,23 @@ if __name__ == '__main__':
     if unique_list[0] != 0:
         unique_list.insert(0,0)
     print(unique_list)
+    '''
 
-
-    for fair_mode in ['DF', 'DS']:          
+    for opt_mode in ['DF', 'DS']:          
         
-        if fair_mode == 'DF':
+        if opt_mode == 'DF': #RAIF
             for theta in theta_list:
                 h = compute_h(size, float(theta), topk) #compute h[i]
                 for item_eps in [0, 0.001, 0.01, 0.1, 1, 10, 20, 40, 60, 80, 100, 200]:
 
-                    solution_rep, solution_expl, fairness = fairness_optimisation(fairness=fair_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), num_pop_unpop=num_pop_unpop, size=size, h=h)
-                    write_results(users, size, item_eps, float(theta), fair_mode, topk, solution_rep, solution_expl)
+                    solution_rep, solution_expl, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), num_pop_unpop=num_pop_unpop, size=size, h=h)
+                    write_results(users, size, item_eps, float(theta), opt_mode, topk, solution_rep, solution_expl)
 
-        elif fair_mode == 'DS':
-            for theta in theta_list[-3:]:
+        elif opt_mode == 'DS': #RADiv
+            for theta in theta_list:
                 h = compute_h(size, float(theta), topk) #compute h[i]
                 for item_eps in [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 3, 5, 10]:
                     
-                    solution_rep, solution_expl, diversity = diversity_optimisation(diversity=fair_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), size=size, category=category, h=h)
-                    write_results(users, size, item_eps, float(theta), fair_mode, topk, solution_rep, solution_expl)
+                    solution_rep, solution_expl, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), size=size, category=category, h=h)
+                    write_results(users, size, item_eps, float(theta), opt_mode, topk, solution_rep, solution_expl)
         
