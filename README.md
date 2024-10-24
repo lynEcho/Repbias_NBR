@@ -18,10 +18,10 @@ To run the published NBR methods' code, please go to the original repository and
 * Dunnhumby: https://www.dunnhumby.com/source-files/
 * Tafeng: https://www.kaggle.com/datasets/chiranjivdas09/ta-feng-grocery-dataset
 
-We provide the scripts of preprocessing, and the preprocessed dataset with different formats (csvdata, jsondata, mergedata), which can be used directly.
+We provide the preprocessed dataset with different formats (csvdata, jsondata, mergedata), which can be used directly.
 
 ### Format description of preprocessed dataset
-* csvdata: --> TREx
+* csvdata:
 > user_id, order_number, item_id, basket_id
 
 * jsondata: --> TIFUKNN, DNNTSP, DREAM, TREx
@@ -44,12 +44,12 @@ We provide the scripts of preprocessing, and the preprocessed dataset with diffe
 ## Code structure
 
 * csvdata, jsondata, mergedata: contain different dataset formats.
-* ra_rerank: RADiv and RAIF algorithms.
-* evaluation: scripts for evaluation.
+* rerank: RADiv and RAIF algorithms for unified NBR methods and combined NBR methods.
+* evaluate: scripts for evaluation.
     * fair_metrics: the fairness metrics.
     * diversity_metrics.py: the diversity metrics. 
     * metrics.py: the accuracy metrics.
-    * model_performance.py: evaluate the fairness, diversity and accuracy of recommendation results.
+    * evaluate_performance.py: evaluate the fairness, diversity and accuracy of recommendation results.  
 * methods: contains 5 NBR methods.
 * appendix: contains a PDF file with the additional experiment results.
 
@@ -59,10 +59,10 @@ We provide the scripts of preprocessing, and the preprocessed dataset with diffe
 * Step 1. Run NBR methods and save the results. (Note that we use the original implementations of the authors, so we provide the original repository links, which contain the instructions of the environment setting, how to run each method, etc. We also provide our additional instructions and hyperparameters in the following section, which can make the running easier.)
 
 
-* Step 2. Re-rank: apply RADiv and RAIF to re-rank the recommendation obtained from NBR methods.
+* Step 2. Re-ranking: apply RADiv and RAIF to re-rank the recommendation obtained from NBR methods.
 
 
-* Step 3. Evaluate: Use the evaluation scripts to get the performance before and after re-ranking.
+* Step 3. Evaluation: Use the evaluation scripts to get the performance before and after re-ranking.
 
 
 ## Re-ranking
@@ -70,16 +70,19 @@ We provide the scripts of preprocessing, and the preprocessed dataset with diffe
 For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
 
 ```
-python rerank_overall_bias.py --topk 100 --size 20 --method upcf --pred_folder XXX
+python rerank_unified.py --topk 100 --size 20 --method upcf --pred_folder XXX
 
 ```
 For combined NBR methods, such as TREx:
 ```
-python rerank_trex_test.py --topk 100 --size 20 --method_rep trep --method_expl upcf --dataset dunnhumby --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
+python rerank_combined.py --topk 100 --size 20 --method_rep trex --method_expl upcf --dataset instacart --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
 
 ```
 
-### Hyperparameters for each NBR method:
+
+### Hyperparameters for each NBR method on each dataset:
+
+We list the hyperparameters selected from validation set:
 
 RADiv:
 |            | Instacart  |  Instacart | Dunnhumby  |  Dunnhumby | TaFeng     |   TaFeng   |
@@ -91,8 +94,6 @@ RADiv:
 | DNNTSP     |    0.2     |    0.01    |   0.12     |    0.01    |   0.01     |    0.01    |
 |            | epsilon_2  | theta      |epsilon_2   | theta      |epsilon_2   | theta      |
 | TREx       |    0.5     |    0.34249 |   10       |    0.57303 |   0.001    |    0.12545 |
-
-
 
 
 
@@ -111,9 +112,11 @@ RAIF:
 
 ```
 
-python evaluate_overall_bias.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list 0 0.001 0.01 0.1 1 10 20 30 40 50 60 70 80 90 100 200 --lamda_list 0 0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 --method dnntsp --dataset tafeng
+python evaluate_performance.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list 0 0.001 0.01 0.1 1 10 20 30 40 50 60 70 80 90 100 200 --lamda_list 0 0.001 0.01 0.1 0.2 0.3 0.4 0.5 0.6 0.7 0.8 0.9 1 --method dnntsp --dataset instacart
 
 ```
+
+--pred_folder is the folder where you put the results after re-ranking, --eval is the folder where you save the evaluation results.
 
 
 
