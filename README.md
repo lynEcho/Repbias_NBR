@@ -2,8 +2,10 @@
 
 This paper proposes a model-agnostic repeat-bias-aware diversity optimization (RADiv) algorithm and a repeat-bias-aware item fairness optimization (RAIF) algorithm based on ILP for next basket recommendation (NBR).
 
-We apply the proposed algorithms on 5 representative NBR methods to mitigate repeat bias while improving the diversity and item fairness of recommended baskets.
- 
+We additionally:
+
+* reproduce 5 NBR methods and apply the proposed algorithms to them.
+* save the additional experiment results in appendix folder.
 
 
 ## Required packages
@@ -51,7 +53,6 @@ We provide the preprocessed dataset with different formats (csvdata, jsondata, m
     * metrics.py: the accuracy metrics.
     * evaluate_performance.py: evaluate the fairness, diversity and accuracy of recommendation results.  
 * methods: contains 5 NBR methods.
-* appendix: contains a PDF file with the additional experiment results.
 
 
 ## Pipeline
