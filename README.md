@@ -116,7 +116,7 @@ RAIF:
 
 ```
 
-python evaluate_performance.py --pred_folder XXX --eval XXX --param_list XXX --lamda_list XXX --method XXX --dataset XXX
+python evaluate/evaluate_performance.py --pred_folder XXX --eval XXX --param_list XXX --lamda_list XXX --method XXX --dataset XXX
 
 ```
 
