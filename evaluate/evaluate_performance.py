@@ -12,7 +12,7 @@ import metric_utils.position as pos
 
 #accuracy
 def eval_accuracy(pred_folder, dataset, size, file, param, lamda):
-    history_file = f'csvdata/{dataset}/fold/{dataset}_train.csv'
+    history_file = f'csvdata/{dataset}/{dataset}_train.csv'
     truth_file = f'jsondata/{dataset}_future.json'
     with open(truth_file, 'r') as f:
         data_truth = json.load(f)
@@ -35,7 +35,7 @@ def eval_accuracy(pred_folder, dataset, size, file, param, lamda):
         keyset = json.load(f)
     with open(pred_file, 'r') as f:
         data_pred = json.load(f)
-    # compute fold
+
     ndcg = []
     recall = []
     hit = []

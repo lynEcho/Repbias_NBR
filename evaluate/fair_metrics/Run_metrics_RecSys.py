@@ -35,7 +35,7 @@ class metric_analysis:
     arg = None      #arg(string): metric parameter
     arg_val = None  #arg_val(float): metric parameter value
     
-    def __init__(self, ranked_lists, test_rates, group, original_relev=None, IAA=True, EE=True, AWRF=False, DRR=True, FAIR=False):
+    def __init__(self, ranked_lists, test_rates, group, original_relev=None, IAA=False, EE=True, AWRF=False, DRR=True, FAIR=False):
         
         self.ranked_lists = ranked_lists
         self.test_rates = test_rates
@@ -124,7 +124,7 @@ class metric_analysis:
         """
         
         return pd.Series(zh.avg_prefix(ranked_list, self.group))
-      
+    
     def run_awrf(self, ranked_list, pweight):
         
         """
@@ -139,7 +139,7 @@ class metric_analysis:
         weight_vector = pweight(ranked_list)
         user_awrf = pd.Series({'AWRF': sp.awrf(ranked_list, self.group, weight_vector).values[0]})
         return user_awrf
-     
+    
     def run_awrf_fair(self, ranked_list, pweight=pos.geometric()):
         
         """
@@ -156,9 +156,9 @@ class metric_analysis:
             'AWRF_equal': sp.awrf(ranked_list, self.group, weight_vector, p_hat=0.5),
             'FAIR': zh.avg_prefix(ranked_list, self.group)
         }).append(self.run_awrf(ranked_list, pweight))
+    '''
     
-    '''  
-    def run_stochastic_metric(self, ranked_list, ranked_rel, pweight):
+    def run_stochastic_metric(self, ranked_list, pweight):
 
         
         """
@@ -172,20 +172,22 @@ class metric_analysis:
         
         result = pd.Series()
         if pweight == 'default':
-            #if self.IAA == True:
+            if self.IAA == True:
+                pass
                 #result = self.run_IAA(ranked_list, ranked_rel)
             if self.EE == True:
-                result = result._append(self.run_EE(ranked_list))
+                result = result.append(self.run_EE(ranked_list))
             if self.DRR == True:
-                result = result._append(self.run_dp_eur_rur(ranked_list))
+                result = result.append(self.run_dp_eur_rur(ranked_list))
             return result
 
-        #if self.IAA == True:
+        if self.IAA == True:
+            pass
             #result = self.run_IAA(ranked_list, ranked_rel, pweight)
         if self.EE == True:
-            result = result._append(self.run_EE(ranked_list, pweight))
+            result = result.append(self.run_EE(ranked_list, pweight))
         if self.DRR == True:
-            result = result._append(self.run_dp_eur_rur(ranked_list, pweight))
+            result = result.append(self.run_dp_eur_rur(ranked_list, pweight))
         
         return result
     '''
@@ -239,12 +241,14 @@ class metric_analysis:
         """
         
         truncated = self.ranked_lists[self.ranked_lists['rank']<=listsize] #truncate top-k  
-        truncated_rel = self.original_relev[self.original_relev['rank']<=listsize]
+        #truncated_rel = self.original_relev[self.original_relev['rank']<=listsize]
 
         #stochastic_metrics = truncated.groupby('Algorithm').progress_apply(self.run_stochastic_metric, pweight='default')
-       
-        stochastic_metrics = self.run_stochastic_metric(truncated, truncated_rel, pweight) 
 
+        #stochastic_metrics = self.run_stochastic_metric(truncated, truncated_rel, pweight='default') #default pweight
+        #stochastic_metrics = self.run_stochastic_metric(truncated, truncated_rel, pweight) 
+        stochastic_metrics = self.run_stochastic_metric(truncated, pweight) 
+        
         #stochastic_metrics = stochastic_metrics.reset_index().melt(id_vars=['Algorithm'], var_name='Metric')
         
         if self.AWRF == True or self.FAIR == True:
