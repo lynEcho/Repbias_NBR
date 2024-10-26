@@ -68,20 +68,20 @@ We provide the preprocessed dataset with different formats (csvdata, jsondata, m
 
 ## Re-ranking
 
+Please create a folder "result" to store the re-ranking results.
+
 For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
 ```
 python rerank_unified.py --topk 100 --size 20 --method XXX --pred_folder XXX
 
 ```
-The re-ranking result is saved in file 'result/{method}_{dataset}_{size}_{param}_{lamda}.json'
-
 
 For combined NBR methods, such as TREx:
 ```
 python rerank_combined.py --topk 100 --size 20 --method_rep trex --method_expl upcf --dataset XXX --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
 
 ```
-The re-ranking result is saved in 'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{param}.json'
+
 
 ### Hyperparameters for each NBR method on each dataset:
 
