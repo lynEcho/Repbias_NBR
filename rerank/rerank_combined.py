@@ -137,9 +137,9 @@ def repeat_ratio(total_users, size):
 
 #optimization
 
-def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, theta = 0.01, num_pop_unpop=[], size = 10, h = []):
+def fairness_optimisation(fairness='N', total_users=1, alpha2 = 0.0000005, theta = 0.01, num_pop_unpop=[], size = 10, h = []):
 
-    print(f"Runing fairness optimisation on '{fairness}', {format(iepsilon, 'f')}, {format(theta, 'f')}")
+    print(f"Runing fairness optimisation on '{fairness}', {format(alpha2, 'f')}, {format(theta, 'f')}")
     # V1: No. of users
     # V2: No. of top items (topk)
     # V4: no. og item groups
@@ -159,7 +159,7 @@ def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, the
     if fairness == 'DF':
         
         model.setObjective((quicksum(SR[i][j] * WR[i, j] for i in V1 for j in V2) + quicksum(SE[i][j] * WE[i, j] for i in V1 for j in V2)) 
-                            - iepsilon * (item_group[0] - item_group[1]), GRB.MAXIMIZE)
+                            - alpha2 * (item_group[0] - item_group[1]), GRB.MAXIMIZE)
 
     
     for i in V1:
@@ -186,9 +186,9 @@ def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, the
     return solution_rep, solution_expl, fairness
 
 
-def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, theta = 0.01, size = 10, category = [], h=[]):
+def diversity_optimisation(diversity='DS', total_users=1,  epsilon2= 0.0000005, theta = 0.01, size = 10, category = [], h=[]):
 
-    print(f"Runing diversity optimisation on '{diversity}', {format(iepsilon, 'f')}, {format(theta, 'f')}")
+    print(f"Runing diversity optimisation on '{diversity}', {format(epsilon2, 'f')}, {format(theta, 'f')}")
     # V1: No. of users
     # V2: No. of top items (topk)
 
@@ -207,7 +207,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
     if diversity == 'DS': 
         model.setObjective(((quicksum(SR[i][j] * WR[i, j] for i in V1 for j in V2) + quicksum(SE[i][j] * WE[i, j] for i in V1 for j in V2)) / size) 
-                            + iepsilon * quicksum(div[i] for i in V1), GRB.MAXIMIZE)
+                            + epsilon2 * quicksum(div[i] for i in V1), GRB.MAXIMIZE)
 
  
     for i in V1:
@@ -242,7 +242,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
 
  
-def write_results(users, size, item_eps, theta, opt_mode, topk, solution_rep, solution_expl):
+def write_results(users, size, param, theta, opt_mode, topk, solution_rep, solution_expl):
     #covert W to result file
 
     rerank = dict()
@@ -264,11 +264,11 @@ def write_results(users, size, item_eps, theta, opt_mode, topk, solution_rep, so
 
     if opt_mode == 'DS':
 
-        file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{item_eps}.json'
+        file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{param}.json'
 
     elif opt_mode == 'DF':
 
-        file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{item_eps}.json'
+        file_path = f'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{param}.json'
     
     
     
@@ -410,16 +410,16 @@ if __name__ == '__main__':
         if opt_mode == 'DF': #RAIF
             for theta in theta_list:
                 h = compute_h(size, float(theta), topk) #compute h[i]
-                for item_eps in [0, 0.001, 0.01, 0.1, 1, 10, 20, 40, 60, 80, 100, 200]:
+                for alpha2 in [0, 0.001, 0.01, 0.1, 1, 10, 20, 40, 60, 80, 100, 200]:
 
-                    solution_rep, solution_expl, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), num_pop_unpop=num_pop_unpop, size=size, h=h)
-                    write_results(users, size, item_eps, float(theta), opt_mode, topk, solution_rep, solution_expl)
+                    solution_rep, solution_expl, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, alpha2=alpha2, theta=float(theta), num_pop_unpop=num_pop_unpop, size=size, h=h)
+                    write_results(users, size, alpha2, float(theta), opt_mode, topk, solution_rep, solution_expl)
 
         elif opt_mode == 'DS': #RADiv
             for theta in theta_list:
                 h = compute_h(size, float(theta), topk) #compute h[i]
-                for item_eps in [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 3, 5, 10]:
+                for epsilon2 in [0, 0.001, 0.005, 0.01, 0.05, 0.1, 0.5, 1, 3, 5, 10]:
                     
-                    solution_rep, solution_expl, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, iepsilon=item_eps, theta=float(theta), size=size, category=category, h=h)
-                    write_results(users, size, item_eps, float(theta), opt_mode, topk, solution_rep, solution_expl)
+                    solution_rep, solution_expl, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, epsilon2=epsilon2, theta=float(theta), size=size, category=category, h=h)
+                    write_results(users, size, epsilon2, float(theta), opt_mode, topk, solution_rep, solution_expl)
         

@@ -69,17 +69,19 @@ We provide the preprocessed dataset with different formats (csvdata, jsondata, m
 ## Re-ranking
 
 For unified NBR methods, such as UP-CF@r, TIFUKNN, Dream, DNNTSP
-
 ```
 python rerank_unified.py --topk 100 --size 20 --method XXX --pred_folder XXX
 
 ```
+The re-ranking result is saved in file 'result/{method}_{dataset}_{size}_{param}_{lamda}.json'
+
+
 For combined NBR methods, such as TREx:
 ```
 python rerank_combined.py --topk 100 --size 20 --method_rep trex --method_expl upcf --dataset XXX --pred_folder_rep XXX --pred_folder_expl XXX --theta_list XXX
 
 ```
-
+The re-ranking result is saved in 'result/{method_rep}_{method_expl}_{dataset}_{size}_{theta}_{param}.json'
 
 ### Hyperparameters for each NBR method on each dataset:
 
@@ -114,7 +116,7 @@ RAIF:
 
 ```
 
-python evaluate_performance.py --pred_folder XXX --fold_list 0 --eval XXX --item_eps_list XXX --lamda_list XXX --method dnntsp --dataset XXX
+python evaluate_performance.py --pred_folder XXX --eval XXX --param_list XXX --lamda_list XXX --method XXX --dataset XXX
 
 ```
 
@@ -134,7 +136,7 @@ Our reproducibility relies as much as possible on the artifacts provided by the 
 
 We also provide our additional instructions if the original repository is not clear, as well as the hyperparameters we use.
 
-We set five random seed: 12345, 12321, 54321, 66688, 56789. And the corresponding number of the predicted files are 0, 1, 2, 3, 4.
+We set random seed as 12345, the corresponding number is 0.
 
 Please create a folder "results" under each method to store the predicted files.
 

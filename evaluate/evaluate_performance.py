@@ -11,7 +11,7 @@ import metric_utils.position as pos
 
 
 #accuracy
-def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
+def eval_accuracy(pred_folder, dataset, size, file, param, lamda):
     history_file = f'csvdata/{dataset}/fold/{dataset}_train.csv'
     truth_file = f'jsondata/{dataset}_future.json'
     with open(truth_file, 'r') as f:
@@ -27,70 +27,70 @@ def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
     a_hit_repeat = []
     a_hit_explore = []
 
-    for ind in fold_list:
-        keyset_file = f'keyset/{dataset}_keyset.json'
-        #rerank file
-        pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
-        with open(keyset_file, 'r') as f:
-            keyset = json.load(f)
-        with open(pred_file, 'r') as f:
-            data_pred = json.load(f)
-        # compute fold
-        ndcg = []
-        recall = []
-        hit = []
-        repeat_ratio = []
-        explore_ratio = []
-        recall_repeat = []
-        recall_explore = []
-        hit_repeat = []
-        hit_explore = []
 
-        for user in keyset['test']: 
-            pred = data_pred[user]
-            truth = data_truth[user][1]
-            # print(user)
-            user_history = data_history[data_history['user_id'].isin([int(user)])]
-            repeat_items = list(set(user_history['item_id']))
-            truth_repeat = list(set(truth)&set(repeat_items)) # might be none
-            truth_explore = list(set(truth)-set(truth_repeat)) # might be none
+    keyset_file = f'keyset/{dataset}_keyset.json'
+    #rerank file
+    pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{param}_{lamda}.json'
+    with open(keyset_file, 'r') as f:
+        keyset = json.load(f)
+    with open(pred_file, 'r') as f:
+        data_pred = json.load(f)
+    # compute fold
+    ndcg = []
+    recall = []
+    hit = []
+    repeat_ratio = []
+    explore_ratio = []
+    recall_repeat = []
+    recall_explore = []
+    hit_repeat = []
+    hit_explore = []
 
-            u_ndcg = get_NDCG(truth, pred, size)
-            ndcg.append(u_ndcg)
-            u_recall = get_Recall(truth, pred, size)
-            recall.append(u_recall)
-            u_hit = get_HT(truth, pred, size)
-            hit.append(u_hit)
+    for user in keyset['test']: 
+        pred = data_pred[user]
+        truth = data_truth[user][1]
+        # print(user)
+        user_history = data_history[data_history['user_id'].isin([int(user)])]
+        repeat_items = list(set(user_history['item_id']))
+        truth_repeat = list(set(truth)&set(repeat_items)) # might be none
+        truth_explore = list(set(truth)-set(truth_repeat)) # might be none
 
-            u_repeat_ratio, u_explore_ratio = get_repeat_explore(repeat_items, pred, size)
-            repeat_ratio.append(u_repeat_ratio)
-            explore_ratio.append(u_explore_ratio)
+        u_ndcg = get_NDCG(truth, pred, size)
+        ndcg.append(u_ndcg)
+        u_recall = get_Recall(truth, pred, size)
+        recall.append(u_recall)
+        u_hit = get_HT(truth, pred, size)
+        hit.append(u_hit)
 
-            if len(truth_repeat)>0:
-                u_recall_repeat = get_Recall(truth_repeat, pred, size)
-                recall_repeat.append(u_recall_repeat)
-                u_hit_repeat = get_HT(truth_repeat, pred, size)
-                hit_repeat.append(u_hit_repeat)
+        u_repeat_ratio, u_explore_ratio = get_repeat_explore(repeat_items, pred, size)
+        repeat_ratio.append(u_repeat_ratio)
+        explore_ratio.append(u_explore_ratio)
 
-            if len(truth_explore)>0:
-                u_recall_explore = get_Recall(truth_explore, pred, size)
-                u_hit_explore = get_HT(truth_explore, pred, size)
-                recall_explore.append(u_recall_explore)
-                hit_explore.append(u_hit_explore)
-        
-        a_ndcg.append(np.mean(ndcg))
-        a_recall.append(np.mean(recall))
-        a_hit.append(np.mean(hit))
-        a_repeat_ratio.append(np.mean(repeat_ratio))
-        a_explore_ratio.append(np.mean(explore_ratio))
-        a_recall_repeat.append(np.mean(recall_repeat))
-        a_recall_explore.append(np.mean(recall_explore))
-        a_hit_repeat.append(np.mean(hit_repeat))
-        a_hit_explore.append(np.mean(hit_explore))
+        if len(truth_repeat)>0:
+            u_recall_repeat = get_Recall(truth_repeat, pred, size)
+            recall_repeat.append(u_recall_repeat)
+            u_hit_repeat = get_HT(truth_repeat, pred, size)
+            hit_repeat.append(u_hit_repeat)
 
-  
+        if len(truth_explore)>0:
+            u_recall_explore = get_Recall(truth_explore, pred, size)
+            u_hit_explore = get_HT(truth_explore, pred, size)
+            recall_explore.append(u_recall_explore)
+            hit_explore.append(u_hit_explore)
+    
+    a_ndcg.append(np.mean(ndcg))
+    a_recall.append(np.mean(recall))
+    a_hit.append(np.mean(hit))
+    a_repeat_ratio.append(np.mean(repeat_ratio))
+    a_explore_ratio.append(np.mean(explore_ratio))
+    a_recall_repeat.append(np.mean(recall_repeat))
+    a_recall_explore.append(np.mean(recall_explore))
+    a_hit_repeat.append(np.mean(hit_repeat))
+    a_hit_explore.append(np.mean(hit_explore))
 
-    file.write('item_eps: ' + str(item_eps) +' '+ 'lamda: ' + str(lamda) +'\n')
+
+
+    file.write('param: ' + str(param) +' '+ 'lamda: ' + str(lamda) +'\n')
     file.write('recall: '+ str([round(num, 4) for num in a_recall]) +' '+ str(round(np.mean(a_recall), 4)) +' '+ str(round(np.std(a_recall) / np.sqrt(len(a_recall)), 4)) +'\n')
     file.write('ndcg: '+ str([round(num, 4) for num in a_ndcg]) +' '+ str(round(np.mean(a_ndcg), 4)) +' '+ str(round(np.std(a_ndcg) / np.sqrt(len(a_ndcg)), 4)) +'\n')
     file.write('hit: '+ str([round(num, 4) for num in a_hit]) +' '+ str(round(np.mean(a_hit), 4)) +' '+ str(round(np.std(a_hit) / np.sqrt(len(a_hit)), 4)) +'\n')
@@ -106,7 +106,7 @@ def eval_accuracy(pred_folder, dataset, size, fold_list, file, item_eps, lamda):
     return np.mean(a_recall)
 
 #item fairness
-def eval_fairness(pred_folder, dataset, fold_list, size, file, item_eps, lamda, pweight): 
+def eval_fairness(pred_folder, dataset, size, file, param, lamda, pweight): 
     
     group_file = f'popularity/{dataset}_group_purchase.json'
     with open(group_file, 'r') as f:
@@ -125,63 +125,63 @@ def eval_fairness(pred_folder, dataset, fold_list, size, file, item_eps, lamda, 
     EUR = []          
     RUR = []       
 
-    for ind in fold_list:
-        keyset_file = f'keyset/{dataset}_keyset.json'
-        pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
 
-        with open(keyset_file, 'r') as f:
-            keyset = json.load(f)
-        with open(pred_file, 'r') as f:
-            data_pred = json.load(f)
+    keyset_file = f'keyset/{dataset}_keyset.json'
+    pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{param}_{lamda}.json'
+
+    with open(keyset_file, 'r') as f:
+        keyset = json.load(f)
+    with open(pred_file, 'r') as f:
+        data_pred = json.load(f)
 
 
-        truth_file = f'jsondata/{dataset}_future.json' # all users
-        with open(truth_file, 'r') as f:
-            data_truth = json.load(f)
+    truth_file = f'jsondata/{dataset}_future.json' # all users
+    with open(truth_file, 'r') as f:
+        data_truth = json.load(f)
 
-        rows = []
-        for user_id, items in data_truth.items():
-            if user_id in keyset['test']: #only evaluate test users
-                for i, item_id in enumerate(items[1]):
-                    if item_id in group_item['pop']:
-                        rows.append((user_id, item_id, 1, 'pop', 1, 0))
-                    else:
-                        rows.append((user_id, item_id, 1, 'unpop', 0, 1))
-        test_rates = pd.DataFrame(rows, columns=['user', 'item', 'rating', 'popularity', 'pop', 'unpop']) 
-        
-        #row = [] #relev 
-        ros = [] #recs
-        for user_id, items in data_pred.items():
-            if user_id in keyset['test']: #only evaluate test users
-                for i, item_id in enumerate(items):
-                    if item_id in group_item['pop']:
-                        #row.append((user_id, item_id, data_rel[user_id][item_id], 'pop', i+1))
-                        if item_id in data_truth[user_id][1]:
-                            ros.append((user_id, item_id, i+1, 'pop', 1, 1, 0))
-                        else:
-                            ros.append((user_id, item_id, i+1, 'pop', 0, 1, 0))
-                    else:
-                        #row.append((user_id, item_id, data_rel[user_id][item_id], 'unpop', i+1))
-                        if item_id in data_truth[user_id][1]:
-                            ros.append((user_id, item_id, i+1, 'unpop', 1, 0, 1))
-                        else:
-                            ros.append((user_id, item_id, i+1, 'unpop', 0, 0, 1))
-        recs = pd.DataFrame(ros, columns=['user', 'item', 'rank', 'popularity', 'rating', 'pop', 'unpop']) 
-        #relev = pd.DataFrame(row, columns=['user', 'item', 'score', 'popularity', 'rank']) #in line with recs
-
-        #MA = ma(recs, test_rates, group, original_relev=relev)
-        MA = ma(recs, test_rates, group)
-        default_results = MA.run_default_setting(listsize=size, pweight=pweight)
-
-        #IAA.append(default_results['IAA'])       
-        EEL.append(default_results['EEL'])     
-        EED.append(default_results['EED'])       
-        EER.append(default_results['EER'])       
-        DP.append(default_results['logDP'])          
-        EUR.append(default_results['logEUR'])          
-        RUR.append(default_results['logRUR'])      
+    rows = []
+    for user_id, items in data_truth.items():
+        if user_id in keyset['test']: #only evaluate test users
+            for i, item_id in enumerate(items[1]):
+                if item_id in group_item['pop']:
+                    rows.append((user_id, item_id, 1, 'pop', 1, 0))
+                else:
+                    rows.append((user_id, item_id, 1, 'unpop', 0, 1))
+    test_rates = pd.DataFrame(rows, columns=['user', 'item', 'rating', 'popularity', 'pop', 'unpop']) 
     
-   
+    #row = [] #relev 
+    ros = [] #recs
+    for user_id, items in data_pred.items():
+        if user_id in keyset['test']: #only evaluate test users
+            for i, item_id in enumerate(items):
+                if item_id in group_item['pop']:
+                    #row.append((user_id, item_id, data_rel[user_id][item_id], 'pop', i+1))
+                    if item_id in data_truth[user_id][1]:
+                        ros.append((user_id, item_id, i+1, 'pop', 1, 1, 0))
+                    else:
+                        ros.append((user_id, item_id, i+1, 'pop', 0, 1, 0))
+                else:
+                    #row.append((user_id, item_id, data_rel[user_id][item_id], 'unpop', i+1))
+                    if item_id in data_truth[user_id][1]:
+                        ros.append((user_id, item_id, i+1, 'unpop', 1, 0, 1))
+                    else:
+                        ros.append((user_id, item_id, i+1, 'unpop', 0, 0, 1))
+    recs = pd.DataFrame(ros, columns=['user', 'item', 'rank', 'popularity', 'rating', 'pop', 'unpop']) 
+    #relev = pd.DataFrame(row, columns=['user', 'item', 'score', 'popularity', 'rank']) #in line with recs
+
+    #MA = ma(recs, test_rates, group, original_relev=relev)
+    MA = ma(recs, test_rates, group)
+    default_results = MA.run_default_setting(listsize=size, pweight=pweight)
+
+    #IAA.append(default_results['IAA'])       
+    EEL.append(default_results['EEL'])     
+    EED.append(default_results['EED'])       
+    EER.append(default_results['EER'])       
+    DP.append(default_results['logDP'])          
+    EUR.append(default_results['logEUR'])          
+    RUR.append(default_results['logRUR'])      
+
+
     #file.write('IAA: ' + str([round(num, 4) for num in IAA]) +' '+ str(round(np.mean(IAA), 4)) +' '+ str(round(np.std(IAA) / np.sqrt(len(IAA)), 4)) +'\n')
     file.write('EEL: ' + str([round(num, 4) for num in EEL]) +' '+ str(round(np.mean(EEL), 4)) +' '+ str(round(np.std(EEL) / np.sqrt(len(EEL)), 4)) +'\n')
     file.write('EED: ' + str([round(num, 4) for num in EED]) +' '+ str(round(np.mean(EED), 4)) +' '+ str(round(np.std(EED) / np.sqrt(len(EED)), 4)) +'\n')
@@ -215,7 +215,7 @@ def convert_to_item_cate_matrix(group_item):
 
 
 #diversity
-def eval_diversity(pred_folder, dataset, fold_list, size, file, item_eps, lamda): 
+def eval_diversity(pred_folder, dataset, size, file, param, lamda): 
     
     group_file = f'category/{dataset}_group_category.json'
     with open(group_file, 'r') as f:
@@ -225,33 +225,27 @@ def eval_diversity(pred_folder, dataset, fold_list, size, file, item_eps, lamda)
     ETP = []
     DS = []
 
+    keyset_file = f'keyset/{dataset}_keyset.json'
+    pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{param}_{lamda}.json'
+    
 
-    for ind in fold_list:
+    with open(keyset_file, 'r') as f:
+        keyset = json.load(f)
+    with open(pred_file, 'r') as f:
+        data_pred = json.load(f)
 
-        keyset_file = f'keyset/{dataset}_keyset.json'
-        pred_file = f'{pred_folder}/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
-        
+    test_dict = {user: data_pred[user][:size] + [0] * (size - len(data_pred[user][:size])) for user in keyset['test']}
 
-        with open(keyset_file, 'r') as f:
-            keyset = json.load(f)
-        with open(pred_file, 'r') as f:
-            data_pred = json.load(f)
+    rank_list = torch.tensor(list(test_dict.values())) #torch.Size([user_num, size])
+    
 
-        test_dict = {user: data_pred[user][:size] + [0] * (size - len(data_pred[user][:size])) for user in keyset['test']}
+    item_cate_matrix = convert_to_item_cate_matrix(group_item)
 
-        rank_list = torch.tensor(list(test_dict.values())) #torch.Size([user_num, size])
-        
+    diversity = diversity_calculator(rank_list, item_cate_matrix)
 
-        item_cate_matrix = convert_to_item_cate_matrix(group_item)
-
-        diversity = diversity_calculator(rank_list, item_cate_matrix)
-
-        ILD.append(diversity['ild'])
-        ETP.append(diversity['entropy'])
-        DS.append(diversity['diversity_score'])
-
-
-        
+    ILD.append(diversity['ild'])
+    ETP.append(diversity['entropy'])
+    DS.append(diversity['diversity_score'])
 
     file.write('ILD: ' + str([round(num, 4) for num in ILD]) +' '+ str(round(np.mean(ILD), 4)) +' '+ str(round(np.std(ILD) / np.sqrt(len(ILD)), 4)) +'\n')
     file.write('ETP: ' + str([round(num, 4) for num in ETP]) +' '+ str(round(np.mean(ETP), 4)) +' '+ str(round(np.std(ETP) / np.sqrt(len(ETP)), 4)) +'\n')
@@ -266,30 +260,28 @@ if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
     parser.add_argument('--pred_folder', type=str, required=True, help='x')
-    parser.add_argument('--fold_list', type=list, required=True, help='x')
     parser.add_argument('--method', type=str, required=True, help='x')
     parser.add_argument('--dataset', type=str, required=True, help='x')
     parser.add_argument('--eval', type=str, required=True, help='x')
-    parser.add_argument('--item_eps_list', nargs='+')
+    parser.add_argument('--param_list', nargs='+')
     parser.add_argument('--lamda_list', nargs='+')
 
 
     args = parser.parse_args()
     pred_folder = args.pred_folder
-    fold_list = args.fold_list
     method = args.method
     dataset = args.dataset
     eval = args.eval 
-    item_eps_list = args.item_eps_list
+    param_list = args.param_list
     lamda_list = args.lamda_list
 
     eval_file = eval + f'{method}_{dataset}_20_grid.txt'
     f = open(eval_file, 'w')
-    for item_eps in item_eps_list:
+    for param in param_list:
         for lamda in lamda_list:
     
-            eval_accuracy(pred_folder, dataset, 20, fold_list, f, item_eps, lamda)
+            eval_accuracy(pred_folder, dataset, 20, f, param, lamda)
 
-            eval_fairness(pred_folder, dataset, fold_list, 20, f, item_eps, lamda, pweight='default')
+            eval_fairness(pred_folder, dataset, 20, f, param, lamda, pweight='default')
 
-            eval_diversity(pred_folder, dataset, fold_list, 20, f, item_eps, lamda)
+            eval_diversity(pred_folder, dataset, 20, f, param, lamda)

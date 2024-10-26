@@ -69,9 +69,9 @@ def load_ranking_matrices(relevance, topk):
 
 #optimization
 
-def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, lamda = 0.01, num_pop_unpop=[], size = 10):
+def fairness_optimisation(fairness='N', total_users=1, alpha1 = 0.0000005, lamda = 0.01, num_pop_unpop=[], size = 10):
 
-    print(f"Runing fairness optimisation on '{fairness}', {format(iepsilon, 'f')}, {format(lamda, 'f')}")
+    print(f"Runing fairness optimisation on '{fairness}', {format(alpha1, 'f')}, {format(lamda, 'f')}")
     # V1: No. of users
     # V2: No. of top items (topk)
     # V4: no. og item groups
@@ -87,7 +87,7 @@ def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, lam
 
     if fairness == 'DF':
 
-        model.setObjective(quicksum(S[i][j] * W[i, j] for i in V1 for j in V2) - iepsilon * (item_group[0] - item_group[1]) - lamda * quicksum(repeat[i] for i in V1), GRB.MAXIMIZE)
+        model.setObjective(quicksum(S[i][j] * W[i, j] for i in V1 for j in V2) - alpha1 * (item_group[0] - item_group[1]) - lamda * quicksum(repeat[i] for i in V1), GRB.MAXIMIZE)
 
     
    
@@ -113,9 +113,9 @@ def fairness_optimisation(fairness='N', total_users=1, iepsilon = 0.0000005, lam
     return solution, fairness
    
 
-def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, lamda = 0.01, size = 10, category = []):
+def diversity_optimisation(diversity='DS', total_users=1, epsilon1 = 0.0000005, lamda = 0.01, size = 10, category = []):
 
-    print(f"Runing diversity optimisation on '{diversity}', {format(iepsilon, 'f')}, {format(lamda, 'f')}")
+    print(f"Runing diversity optimisation on '{diversity}', {format(epsilon1, 'f')}, {format(lamda, 'f')}")
     # V1: No. of users
     # V2: No. of top items (topk)
 
@@ -134,7 +134,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
 
     if diversity == 'DS': 
-        model.setObjective((quicksum(S[i][j] * W[i, j] for i in V1 for j in V2) / size) + iepsilon * quicksum(div[i] for i in V1) - lamda * quicksum(repeat[i] for i in V1), GRB.MAXIMIZE)
+        model.setObjective((quicksum(S[i][j] * W[i, j] for i in V1 for j in V2) / size) + epsilon1 * quicksum(div[i] for i in V1) - lamda * quicksum(repeat[i] for i in V1), GRB.MAXIMIZE)
 
       
   
@@ -178,7 +178,7 @@ def diversity_optimisation(diversity='DS', total_users=1, iepsilon = 0.0000005, 
 
 
  
-def write_results(users, size, item_eps, lamda, opt_mode, topk, solution):
+def write_results(users, size, param, lamda, opt_mode, topk, solution):
     #covert W to result file
 
     rerank = dict()
@@ -198,10 +198,10 @@ def write_results(users, size, item_eps, lamda, opt_mode, topk, solution):
     #save the new results in a file
     if opt_mode == 'DS':
 
-        file_path = f'result/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
+        file_path = f'result/{method}_{dataset}_{size}_{param}_{lamda}.json'
     elif opt_mode == 'DF':
 
-        file_path = f'result/{method}_{dataset}_{size}_{item_eps}_{lamda}.json'
+        file_path = f'result/{method}_{dataset}_{size}_{param}_{lamda}.json'
     
     
     with open(file_path, 'w') as json_file:
@@ -272,16 +272,16 @@ if __name__ == '__main__':
         for opt_mode in ['DF', 'DS']:
                     
             if opt_mode == 'DF': #RAIF
-                for item_eps in [0, 0.001, 0.01, 0.1, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200]:
+                for alpha1 in [0, 0.001, 0.01, 0.1, 1, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100, 200]:
                     for lamda in [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
-                        solution, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, num_pop_unpop=num_pop_unpop, size=size)
-                        write_results(users, size, item_eps, lamda, opt_mode, topk, solution)
+                        solution, fairness = fairness_optimisation(fairness=opt_mode, total_users=total_users, alpha1=alpha1, lamda=lamda, num_pop_unpop=num_pop_unpop, size=size)
+                        write_results(users, size, alpha1, lamda, opt_mode, topk, solution)
 
             elif opt_mode == 'DS': #RADiv
-                for item_eps in [0, 0.001, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]:
+                for epsilon1 in [0, 0.001, 0.01, 0.02, 0.04, 0.06, 0.08, 0.1, 0.12, 0.14, 0.16, 0.18, 0.2]:
                     for lamda in [0, 0.001, 0.01, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1]:
 
-                        solution, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, iepsilon=item_eps, lamda=lamda, size=size, category=category)
-                        write_results(users, size, item_eps, lamda, opt_mode, topk, solution)
+                        solution, diversity = diversity_optimisation(diversity=opt_mode, total_users=total_users, epsilon1=epsilon1, lamda=lamda, size=size, category=category)
+                        write_results(users, size, epsilon1, lamda, opt_mode, topk, solution)
 
         
